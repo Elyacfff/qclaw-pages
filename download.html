@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QaraKino - 下载中心</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        header { text-align: center; margin-bottom: 60px; }
+        .logo {
+            display: flex; align-items: center; justify-content: center; gap: 15px;
+            margin-bottom: 20px;
+        }
+        .logo-icon {
+            width: 60px; height: 60px; background: #dc2626; border-radius: 15px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .logo-icon svg { width: 35px; height: 35px; }
+        h1 { font-size: 3rem; margin-bottom: 10px; }
+        .subtitle { color: #888; font-size: 1.2rem; }
+        .download-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 50px;
+        }
+        .download-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+        .download-card:hover {
+            transform: translateY(-5px); border-color: #dc2626;
+        }
+        .card-icon { width: 50px; height: 50px; background: rgba(220, 38, 38, 0.2);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px;
+        }
+        .card-icon svg { width: 28px; height: 28px; color: #dc2626; }
+        .card-title { font-size: 1.5rem; margin-bottom: 10px; }
+        .card-desc { color: #888; margin-bottom: 25px; line-height: 1.6; }
+        .download-btn {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: #dc2626; color: white; border: none; padding: 15px 30px;
+            border-radius: 12px; font-size: 1rem; font-weight: 600;
+            cursor: pointer; text-decoration: none; transition: background 0.3s;
+        }
+        .download-btn:hover { background: #b91c1c; }
+        .download-btn.secondary { background: #333; }
+        .download-btn.secondary:hover { background: #444; }
+        .file-info { margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.875rem; color: #666;
+        }
+        .quick-start {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            border-radius: 20px; padding: 40px; text-align: center;
+        }
+        .quick-start h2 { margin-bottom: 30px; }
+        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; }
+        .step { text-align: center; }
+        .step-number {
+            width: 50px; height: 50px; background: #dc2626; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold;
+            margin: 0 auto 15px;
+        }
+        .step-title { font-weight: 600; margin-bottom: 8px; }
+        .step-desc { color: #888; font-size: 0.875rem; }
+        .footer { margin-top: 60px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center; color: #666; }
+        @media (max-width: 640px) {
+            h1 { font-size: 2rem; }
+            .download-card { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </div>
+                <h1>QaraKino</h1>
+            </div>
+            <p class="subtitle">维语影视平台 - 下载中心</p>
+        </header>
+
+        <div class="download-grid">
+            <div class="download-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7,10 12,15 17,10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                </div>
+                <h3 class="card-title">完整项目包</h3>
+                <p class="card-desc">包含用户端、管理后台和后端API的完整源码</p>
+                <a href="https://github.com/your-repo/qarakino/archive/refs/heads/main.zip" class="download-btn">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7,10 12,15 17,10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    下载源码
+                </a>
+                <div class="file-info">
+                    📦 包含: 前端 + 后端 + 管理后台 | ⏱️ 更新于: 2024
+                </div>
+            </div>
+
+            <div class="download-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                </div>
+                <h3 class="card-title">Windows 安装脚本</h3>
+                <p class="card-desc">一键安装，自动配置依赖，快速启动</p>
+                <a href="install.bat" class="download-btn" download>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7,10 12,15 17,10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    下载 install.bat
+                </a>
+                <div class="file-info">
+                    💻 系统: Windows | 📄 大小: ~2KB
+                </div>
+            </div>
+
+            <div class="download-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14"/>
+                        <path d="M12 5v14"/>
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    </svg>
+                </div>
+                <h3 class="card-title">Linux/Mac 安装脚本</h3>
+                <p class="card-desc">适用于 Linux 和 macOS 的自动化安装脚本</p>
+                <a href="install.sh" class="download-btn" download>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7,10 12,15 17,10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    下载 install.sh
+                </a>
+                <div class="file-info">
+                    🖥️ 系统: Linux / macOS | 📄 大小: ~3KB
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-start">
+            <h2>🚀 快速开始</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-title">下载安装包</div>
+                    <div class="step-desc">下载适合你系统的安装脚本</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">运行安装</div>
+                    <div class="step-desc">双击运行脚本自动安装依赖</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">启动服务</div>
+                    <div class="step-desc">运行 npm run dev 启动所有服务</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-title">开始使用</div>
+                    <div class="step-desc">在浏览器中打开 http://localhost:3000</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>📖 需要 Node.js 16+ 版本</p>
+            <p style="margin-top: 10px;">© 2024 QaraKino. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

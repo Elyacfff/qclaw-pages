@@ -1,0 +1,98 @@
+📦 QaraKino - 维语影视平台 项目清单
+========================================
+
+📁 根目录
+├── package.json              # 根项目配置
+├── README.md                 # 项目文档
+├── 快速开始.md               # 快速开始指南
+├── 项目清单.txt              # 本文件
+├── .gitignore               # Git 忽略文件
+│
+├── install.sh               # Linux/macOS 安装脚本
+├── install.bat              # Windows 安装脚本
+├── start.sh                 # Linux/macOS 启动脚本
+├── start.bat                # Windows 启动脚本
+└── download.html            # 下载页面
+
+📁 backend/ - 后端服务
+├── package.json             # 后端依赖
+├── server.js                # 主服务文件
+└── uploads/                 # 上传文件目录
+    ├── videos/              # 视频文件
+    └── thumbnails/          # 缩略图文件
+
+📁 client/ - 用户端
+├── package.json             # 前端依赖
+├── vite.config.js           # Vite 配置
+├── tailwind.config.js       # Tailwind 配置
+├── postcss.config.js        # PostCSS 配置
+├── index.html               # 入口 HTML
+└── src/
+    ├── main.jsx             # 入口文件
+    ├── App.jsx              # 主应用
+    ├── index.css            # 样式
+    ├── components/
+    │   └── VideoCard.jsx    # 视频卡片组件
+    └── pages/
+        ├── HomePage.jsx     # 首页
+        ├── VideoPage.jsx    # 视频播放页
+        ├── CategoryPage.jsx # 分类页
+        └── SearchPage.jsx   # 搜索页
+
+📁 admin/ - 管理后台
+├── package.json             # 后台依赖
+├── vite.config.js           # Vite 配置
+├── tailwind.config.js       # Tailwind 配置
+├── postcss.config.js        # PostCSS 配置
+├── index.html               # 入口 HTML
+└── src/
+    ├── main.jsx             # 入口文件
+    ├── App.jsx              # 主应用
+    ├── index.css            # 样式
+    └── pages/
+        ├── Dashboard.jsx    # 仪表板
+        ├── Videos.jsx       # 视频管理
+        ├── Categories.jsx   # 分类管理
+        └── Sliders.jsx      # 轮播图管理
+
+========================================
+🚀 快速启动
+========================================
+
+Windows:
+1. 双击 install.bat 安装依赖
+2. 双击 start.bat 启动服务
+3. 打开浏览器访问：
+   - 用户端: http://localhost:3000
+   - 管理后台: http://localhost:3001
+
+Linux/macOS:
+1. chmod +x install.sh start.sh
+2. ./install.sh
+3. ./start.sh
+4. 打开浏览器访问上述地址
+
+手动方式:
+1. npm run install:all
+2. npm run dev
+
+========================================
+📞 访问地址
+========================================
+
+🎬 用户端:      http://localhost:3000
+⚙️  管理后台:    http://localhost:3001
+📡 后端API:     http://localhost:5000
+📥 下载页面:    打开 download.html
+
+========================================
+🔧 技术栈
+========================================
+
+前端: React 18 + Vite + Tailwind CSS
+后端: Node.js + Express + Multer
+图标: Lucide React
+存储: 内存存储（演示）/ 文件系统
+
+========================================
+© 2024 QaraKino - 维语影视平台

@@ -1,17 +1,20 @@
 {
   "name": "qarakino",
   "version": "1.0.0",
-  "description": "Uyghur Video Streaming Platform",
+  "description": "QaraKino - 维语影视平台",
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:client\" \"npm run dev:admin\"",
     "dev:client": "cd client && npm run dev",
     "dev:admin": "cd admin && npm run dev",
-    "dev:backend": "cd backend && node --watch server.js",
+    "dev:backend": "cd backend && npm run dev",
     "build:client": "cd client && npm run build",
     "build:admin": "cd admin && npm run build",
     "install:all": "npm install && cd backend && npm install && cd ../client && npm install && cd ../admin && npm install",
-    "start": "cd backend && node server.js"
+    "start": "cd backend && npm start"
   },
+  "keywords": ["video", "uyghur", "streaming"],
+  "author": "QaraKino Team",
+  "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2"
   }
