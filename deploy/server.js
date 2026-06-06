@@ -1,3 +1,17 @@
+/**
+ * QaraKino - Unified Deployment Server
+ *
+ * Serves:
+ *   - Client frontend  at /
+ *   - Admin panel      at /admin/
+ *   - Backend API      at /api/
+ *   - Upload files     at /uploads/
+ *
+ * Usage:
+ *   node server.js
+ *   PORT=3000 node server.js
+ */
+
 import express from 'express'
 import cors from 'cors'
 import multer from 'multer'
@@ -17,7 +31,7 @@ const __dirname = path.dirname(__filename)
 // App initialization
 // ============================================================
 const app = express()
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 3000
 const JWT_SECRET = process.env.JWT_SECRET || 'qarakino-super-secret-key-2024'
 const JWT_EXPIRES_IN = '24h'
 
@@ -29,8 +43,14 @@ app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 // ============================================================
-// Upload directories & static serving
+// Static file serving
 // ============================================================
+
+// Client frontend - served at root /
+const clientDist = path.join(__dirname, 'client')
+const adminDist = path.join(__dirname, 'admin')
+
+// Upload directories
 const uploadsDir = path.join(__dirname, 'uploads')
 const videosDir = path.join(uploadsDir, 'videos')
 const thumbnailsDir = path.join(uploadsDir, 'thumbnails')
@@ -340,9 +360,6 @@ const ADMIN_PASSWORD_HASH = bcrypt.hashSync('admin123', 10)
 // JWT Authentication Middleware
 // ============================================================
 
-/**
- * Generate a JWT token for the given username.
- */
 function generateToken(username) {
   return jwt.sign(
     { username, role: 'admin', iat: Date.now() },
@@ -351,10 +368,6 @@ function generateToken(username) {
   )
 }
 
-/**
- * Middleware: verify JWT token from Authorization header.
- * Attaches req.user if valid; returns 401 if missing/invalid.
- */
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization']
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -386,11 +399,6 @@ function toInt(val, fallback = 0) {
 // 1. AUTH API
 // ============================================================
 
-/**
- * POST /api/auth/login
- * Body: { username, password }
- * Returns JWT token on success.
- */
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body
 
@@ -428,10 +436,6 @@ app.get('/api/health', (req, res) => {
 // 3. VIDEO CRUD API
 // ============================================================
 
-/**
- * GET /api/videos
- * Query: category, search, featured, page, limit
- */
 app.get('/api/videos', (req, res) => {
   try {
     const { category, search, featured } = req.query
@@ -461,20 +465,13 @@ app.get('/api/videos', (req, res) => {
   }
 })
 
-/**
- * GET /api/videos/:id
- * Returns video details with average rating; increments view count.
- */
 app.get('/api/videos/:id', (req, res) => {
   try {
     const video = videos.find(v => v.id === toInt(req.params.id))
     if (!video) {
       return res.status(404).json({ error: '视频不存在' })
     }
-    // Increment views
     video.views = (video.views || 0) + 1
-
-    // Attach comments for this video
     const videoComments = comments[video.id] || []
 
     res.json({
@@ -488,10 +485,6 @@ app.get('/api/videos/:id', (req, res) => {
   }
 })
 
-/**
- * POST /api/videos  [Protected]
- * Create a new video. Accepts multipart form with thumbnail & video files.
- */
 app.post('/api/videos', authenticateToken, upload.fields([
   { name: 'thumbnail', maxCount: 1 },
   { name: 'video', maxCount: 1 }
@@ -537,10 +530,6 @@ app.post('/api/videos', authenticateToken, upload.fields([
   }
 })
 
-/**
- * PUT /api/videos/:id  [Protected]
- * Update an existing video.
- */
 app.put('/api/videos/:id', authenticateToken, upload.fields([
   { name: 'thumbnail', maxCount: 1 },
   { name: 'video', maxCount: 1 }
@@ -582,10 +571,6 @@ app.put('/api/videos/:id', authenticateToken, upload.fields([
   }
 })
 
-/**
- * DELETE /api/videos/:id  [Protected]
- * Delete a video and its associated files.
- */
 app.delete('/api/videos/:id', authenticateToken, (req, res) => {
   try {
     const index = videos.findIndex(v => v.id === toInt(req.params.id))
@@ -595,7 +580,6 @@ app.delete('/api/videos/:id', authenticateToken, (req, res) => {
 
     const deleted = videos.splice(index, 1)[0]
 
-    // Remove associated files
     if (deleted.thumbnail && deleted.thumbnail.startsWith('/uploads')) {
       const thumbPath = path.join(__dirname, deleted.thumbnail)
       if (fs.existsSync(thumbPath)) fs.unlinkSync(thumbPath)
@@ -605,13 +589,8 @@ app.delete('/api/videos/:id', authenticateToken, (req, res) => {
       if (fs.existsSync(videoPath)) fs.unlinkSync(videoPath)
     }
 
-    // Remove associated comments
     delete comments[deleted.id]
-
-    // Remove from favorites
     favorites = favorites.filter(f => f.videoId !== deleted.id)
-
-    // Remove from watch history
     watchHistory = watchHistory.filter(h => h.videoId !== deleted.id)
 
     res.status(204).send()
@@ -624,10 +603,6 @@ app.delete('/api/videos/:id', authenticateToken, (req, res) => {
 // 4. VIDEO RATING
 // ============================================================
 
-/**
- * POST /api/videos/:id/rate
- * Body: { rating: 1-5 }
- */
 app.post('/api/videos/:id/rate', (req, res) => {
   try {
     const video = videos.find(v => v.id === toInt(req.params.id))
@@ -640,7 +615,6 @@ app.post('/api/videos/:id/rate', (req, res) => {
       return res.status(400).json({ error: '评分必须在 1 到 5 之间' })
     }
 
-    // Recalculate average rating
     const currentTotal = (video.rating || 0) * (video.ratingCount || 0)
     const newCount = (video.ratingCount || 0) + 1
     video.rating = Math.round(((currentTotal + rating) / newCount) * 10) / 10
@@ -660,10 +634,6 @@ app.post('/api/videos/:id/rate', (req, res) => {
 // 5. COMMENTS API
 // ============================================================
 
-/**
- * GET /api/videos/:id/comments
- * Returns all comments for a specific video.
- */
 app.get('/api/videos/:id/comments', (req, res) => {
   try {
     const videoId = toInt(req.params.id)
@@ -679,10 +649,6 @@ app.get('/api/videos/:id/comments', (req, res) => {
   }
 })
 
-/**
- * POST /api/videos/:id/comments
- * Body: { text, author }
- */
 app.post('/api/videos/:id/comments', (req, res) => {
   try {
     const videoId = toInt(req.params.id)
@@ -718,10 +684,6 @@ app.post('/api/videos/:id/comments', (req, res) => {
 // 6. FAVORITES API
 // ============================================================
 
-/**
- * GET /api/favorites
- * Returns the user's favorite videos with full video details.
- */
 app.get('/api/favorites', (req, res) => {
   try {
     const favoriteVideos = favorites
@@ -738,10 +700,6 @@ app.get('/api/favorites', (req, res) => {
   }
 })
 
-/**
- * POST /api/favorites/:videoId
- * Add a video to favorites.
- */
 app.post('/api/favorites/:videoId', (req, res) => {
   try {
     const videoId = toInt(req.params.videoId)
@@ -767,10 +725,6 @@ app.post('/api/favorites/:videoId', (req, res) => {
   }
 })
 
-/**
- * DELETE /api/favorites/:videoId
- * Remove a video from favorites.
- */
 app.delete('/api/favorites/:videoId', (req, res) => {
   try {
     const videoId = toInt(req.params.videoId)
@@ -790,10 +744,6 @@ app.delete('/api/favorites/:videoId', (req, res) => {
 // 7. WATCH HISTORY API
 // ============================================================
 
-/**
- * GET /api/history
- * Returns watch history with video details, sorted by most recent.
- */
 app.get('/api/history', (req, res) => {
   try {
     const historyWithDetails = watchHistory
@@ -811,10 +761,6 @@ app.get('/api/history', (req, res) => {
   }
 })
 
-/**
- * POST /api/history/:videoId
- * Record a video watch event (videoId + timestamp).
- */
 app.post('/api/history/:videoId', (req, res) => {
   try {
     const videoId = toInt(req.params.videoId)
@@ -823,7 +769,6 @@ app.post('/api/history/:videoId', (req, res) => {
       return res.status(404).json({ error: '视频不存在' })
     }
 
-    // Remove existing entry for this video (so it appears once, at the top)
     watchHistory = watchHistory.filter(h => h.videoId !== videoId)
 
     watchHistory.push({
@@ -841,10 +786,6 @@ app.post('/api/history/:videoId', (req, res) => {
 // 8. ENHANCED SEARCH API
 // ============================================================
 
-/**
- * GET /api/search
- * Query: q (keyword), category, sort (views|date|title), page, limit
- */
 app.get('/api/search', (req, res) => {
   try {
     const { q, category, sort, page, limit } = req.query
@@ -853,7 +794,6 @@ app.get('/api/search', (req, res) => {
 
     let results = [...videos]
 
-    // Filter by keyword
     if (q) {
       const keyword = q.toLowerCase()
       results = results.filter(v =>
@@ -866,12 +806,10 @@ app.get('/api/search', (req, res) => {
       )
     }
 
-    // Filter by category
     if (category) {
       results = results.filter(v => v.category === category)
     }
 
-    // Sort
     switch (sort) {
       case 'views':
         results.sort((a, b) => (b.views || 0) - (a.views || 0))
@@ -886,11 +824,9 @@ app.get('/api/search', (req, res) => {
         results.sort((a, b) => (b.rating || 0) - (a.rating || 0))
         break
       default:
-        // Default: by date descending
         results.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     }
 
-    // Pagination
     const total = results.length
     const totalPages = Math.ceil(total / currentLimit)
     const startIndex = (currentPage - 1) * currentLimit
@@ -914,9 +850,6 @@ app.get('/api/search', (req, res) => {
 // 9. CATEGORY CRUD API
 // ============================================================
 
-/**
- * GET /api/categories
- */
 app.get('/api/categories', (req, res) => {
   try {
     res.json(categories)
@@ -925,9 +858,6 @@ app.get('/api/categories', (req, res) => {
   }
 })
 
-/**
- * POST /api/categories  [Protected]
- */
 app.post('/api/categories', authenticateToken, (req, res) => {
   try {
     const { name, nameUy, nameCn } = req.body
@@ -953,9 +883,6 @@ app.post('/api/categories', authenticateToken, (req, res) => {
   }
 })
 
-/**
- * PUT /api/categories/:id  [Protected]
- */
 app.put('/api/categories/:id', authenticateToken, (req, res) => {
   try {
     const index = categories.findIndex(c => c.id === toInt(req.params.id))
@@ -977,9 +904,6 @@ app.put('/api/categories/:id', authenticateToken, (req, res) => {
   }
 })
 
-/**
- * DELETE /api/categories/:id  [Protected]
- */
 app.delete('/api/categories/:id', authenticateToken, (req, res) => {
   try {
     const index = categories.findIndex(c => c.id === toInt(req.params.id))
@@ -997,9 +921,6 @@ app.delete('/api/categories/:id', authenticateToken, (req, res) => {
 // 10. SLIDER CRUD API
 // ============================================================
 
-/**
- * GET /api/sliders
- */
 app.get('/api/sliders', (req, res) => {
   try {
     res.json(sliders)
@@ -1008,9 +929,6 @@ app.get('/api/sliders', (req, res) => {
   }
 })
 
-/**
- * POST /api/sliders  [Protected]
- */
 app.post('/api/sliders', authenticateToken, (req, res) => {
   try {
     const { title, titleCn, image, videoId } = req.body
@@ -1032,9 +950,6 @@ app.post('/api/sliders', authenticateToken, (req, res) => {
   }
 })
 
-/**
- * PUT /api/sliders/:id  [Protected]
- */
 app.put('/api/sliders/:id', authenticateToken, (req, res) => {
   try {
     const index = sliders.findIndex(s => s.id === toInt(req.params.id))
@@ -1057,9 +972,6 @@ app.put('/api/sliders/:id', authenticateToken, (req, res) => {
   }
 })
 
-/**
- * DELETE /api/sliders/:id  [Protected]
- */
 app.delete('/api/sliders/:id', authenticateToken, (req, res) => {
   try {
     const index = sliders.findIndex(s => s.id === toInt(req.params.id))
@@ -1077,10 +989,6 @@ app.delete('/api/sliders/:id', authenticateToken, (req, res) => {
 // 11. ENHANCED STATS API
 // ============================================================
 
-/**
- * GET /api/stats
- * Returns comprehensive platform statistics.
- */
 app.get('/api/stats', (req, res) => {
   try {
     const totalComments = Object.values(comments).reduce(
@@ -1102,19 +1010,33 @@ app.get('/api/stats', (req, res) => {
 })
 
 // ============================================================
-// 12. GLOBAL ERROR HANDLER
+// STATIC FILE SERVING (must be after API routes)
 // ============================================================
 
-/**
- * Catch-all for unmatched routes.
- */
-app.use((req, res) => {
-  res.status(404).json({ error: `路由不存在: ${req.method} ${req.originalUrl}` })
+// Admin panel - served at /admin/
+app.use('/admin', express.static(adminDist))
+
+// SPA fallback for admin: any /admin/* request that isn't a file -> index.html
+app.get('/admin/*', (req, res) => {
+  res.sendFile(path.join(adminDist, 'index.html'))
 })
 
-/**
- * Global error handler for unexpected errors.
- */
+// Client frontend - served at root /
+app.use(express.static(clientDist))
+
+// SPA fallback for client: any non-API, non-file request -> index.html
+app.get('*', (req, res) => {
+  // Skip API routes and admin routes (already handled above)
+  if (req.path.startsWith('/api') || req.path.startsWith('/admin') || req.path.startsWith('/uploads')) {
+    return res.status(404).json({ error: `路由不存在: ${req.method} ${req.originalUrl}` })
+  }
+  res.sendFile(path.join(clientDist, 'index.html'))
+})
+
+// ============================================================
+// GLOBAL ERROR HANDLER
+// ============================================================
+
 app.use((err, req, res, _next) => {
   console.error(`[QaraKino Error] ${new Date().toISOString()} - ${err.message}`)
   if (err instanceof multer.MulterError) {
@@ -1131,12 +1053,15 @@ app.use((err, req, res, _next) => {
 // ============================================================
 app.listen(PORT, () => {
   console.log(`\n========================================`)
-  console.log(`  QaraKino Backend Server v2.0.0`)
+  console.log(`  QaraKino Unified Server v2.0.0`)
   console.log(`========================================`)
-  console.log(`  Server:   http://localhost:${PORT}`)
-  console.log(`  Health:   http://localhost:${PORT}/api/health`)
-  console.log(`  Videos:   ${videos.length} loaded`)
+  console.log(`  Server:    http://localhost:${PORT}`)
+  console.log(`  Client:    http://localhost:${PORT}/`)
+  console.log(`  Admin:     http://localhost:${PORT}/admin/`)
+  console.log(`  API:       http://localhost:${PORT}/api/`)
+  console.log(`  Health:    http://localhost:${PORT}/api/health`)
+  console.log(`  Videos:    ${videos.length} loaded`)
   console.log(`  Categories: ${categories.length} loaded`)
-  console.log(`  Sliders:  ${sliders.length} loaded`)
+  console.log(`  Sliders:   ${sliders.length} loaded`)
   console.log(`========================================\n`)
 })

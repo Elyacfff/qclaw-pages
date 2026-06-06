@@ -1,25 +1,54 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Search as SearchIcon, Play, Eye } from 'lucide-react'
+import { useEffect, useState, useRef, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Search as SearchIcon, SlidersHorizontal, X } from 'lucide-react'
+import VideoCard from '../components/VideoCard'
 
 function SearchPage() {
   const [query, setQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
   const [videos, setVideos] = useState([])
   const [allVideos, setAllVideos] = useState([])
+  const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(false)
+  const [activeCategory, setActiveCategory] = useState('all')
+  const [sortBy, setSortBy] = useState('default')
+  const [hasSearched, setHasSearched] = useState(false)
   const navigate = useNavigate()
+  const inputRef = useRef(null)
+  const debounceTimer = useRef(null)
 
+  // Load all videos and categories
   useEffect(() => {
-    fetch('/api/videos')
-      .then(r => r.json())
-      .then(setAllVideos)
-      .catch(() => {})
+    Promise.all([
+      fetch('/api/videos').then(r => r.json()),
+      fetch('/api/categories').then(r => r.json())
+    ]).then(([vids, cats]) => {
+      setAllVideos(vids)
+      setCategories(cats)
+    }).catch(() => {})
   }, [])
 
+  // Debounce search
   useEffect(() => {
-    if (query.trim()) {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current)
+    }
+    debounceTimer.current = setTimeout(() => {
+      setDebouncedQuery(query)
+    }, 300)
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current)
+      }
+    }
+  }, [query])
+
+  // Search when debounced query changes
+  useEffect(() => {
+    if (debouncedQuery.trim()) {
+      setHasSearched(true)
       setLoading(true)
-      fetch(`/api/videos?search=${encodeURIComponent(query)}`)
+      fetch(`/api/videos?search=${encodeURIComponent(debouncedQuery)}`)
         .then(r => r.json())
         .then(data => {
           setVideos(data)
@@ -27,78 +56,163 @@ function SearchPage() {
         })
         .catch(() => {
           const filtered = allVideos.filter(v =>
-            v.title.toLowerCase().includes(query.toLowerCase()) ||
-            (v.titleCn && v.titleCn.toLowerCase().includes(query.toLowerCase()))
+            v.title.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+            (v.titleCn && v.titleCn.toLowerCase().includes(debouncedQuery.toLowerCase()))
           )
           setVideos(filtered)
           setLoading(false)
         })
     } else {
       setVideos([])
+      setHasSearched(false)
     }
-  }, [query, allVideos])
+  }, [debouncedQuery, allVideos])
+
+  // Filter and sort
+  const filteredVideos = useMemo(() => {
+    let result = [...videos]
+
+    // Category filter
+    if (activeCategory !== 'all') {
+      result = result.filter(v => v.category === activeCategory)
+    }
+
+    // Sort
+    switch (sortBy) {
+      case 'views':
+        result.sort((a, b) => (b.views || 0) - (a.views || 0))
+        break
+      case 'newest':
+        result.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+        break
+      default:
+        break
+    }
+
+    return result
+  }, [videos, activeCategory, sortBy])
+
+  // Auto focus
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="max-w-2xl mx-auto mb-8">
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      {/* Search Bar */}
+      <div className="max-w-2xl mx-auto mb-6">
         <div className="relative">
-          <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" />
+          <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
+            ref={inputRef}
             type="text"
-            placeholder="ئىزدەش..."
+            placeholder="搜索视频、电影、电视剧..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-4 bg-dark2 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-primary"
-            autoFocus
+            className="w-full pl-12 pr-10 py-3.5 bg-dark2 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-red-600 transition-colors text-sm"
           />
+          {query && (
+            <button
+              onClick={() => { setQuery(''); setDebouncedQuery(''); setHasSearched(false) }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
 
-      {loading ? (
-        <div className="text-center py-16">
-          <div className="text-xl">ئىزدەۋاتىدۇ...</div>
+      {/* Category Filter Tabs */}
+      {hasSearched && (
+        <div className="mb-6 animate-fadeIn">
+          <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
+            <button
+              onClick={() => setActiveCategory('all')}
+              className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-all ${
+                activeCategory === 'all'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-dark2 text-gray-300 hover:bg-gray-800'
+              }`}
+            >
+              全部
+            </button>
+            {categories.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.name)}
+                className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-all ${
+                  activeCategory === cat.name
+                    ? 'bg-red-600 text-white'
+                    : 'bg-dark2 text-gray-300 hover:bg-gray-800'
+                }`}
+              >
+                {cat.nameUy}
+              </button>
+            ))}
+          </div>
         </div>
-      ) : query.trim() ? (
-        videos.length > 0 ? (
-          <div>
-            <h2 className="text-xl font-bold mb-6">
-              {videos.length} نەتىجە تېپىلدى
-            </h2>
+      )}
+
+      {/* Sort Options */}
+      {hasSearched && (
+        <div className="flex items-center justify-between mb-6 animate-fadeIn">
+          <span className="text-sm text-gray-400">
+            {loading ? '搜索中...' : `${filteredVideos.length} 个结果`}
+          </span>
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="w-4 h-4 text-gray-400" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="bg-dark2 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-red-600"
+            >
+              <option value="default">默认排序</option>
+              <option value="views">最多播放</option>
+              <option value="newest">最新发布</option>
+            </select>
+          </div>
+        </div>
+      )}
+
+      {/* Results */}
+      {loading ? (
+        <div className="animate-fadeIn">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="skeleton-card">
+                <div className="skeleton-image" />
+                <div className="skeleton-title" />
+                <div className="skeleton-subtitle" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : hasSearched ? (
+        filteredVideos.length > 0 ? (
+          <div className="animate-fadeIn">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {videos.map(video => (
-                <Link key={video.id} to={`/video/${video.id}`} className="group">
-                  <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-2">
-                    <img
-                      src={video.thumbnail}
-                      alt={video.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                      <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center">
-                        <Play fill="currentColor" className="w-6 h-6 ml-1" />
-                      </div>
-                    </div>
-                    <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-sm">
-                      {video.duration}
-                    </div>
-                  </div>
-                  <h3 className="font-medium truncate">{video.title}</h3>
-                  <div className="flex items-center gap-1 text-gray-400 text-sm">
-                    <Eye className="w-3 h-3" />
-                    <span>{video.views?.toLocaleString() || 0} كۆرۈش</span>
-                  </div>
-                </Link>
+              {filteredVideos.map(video => (
+                <VideoCard
+                  key={video.id}
+                  video={video}
+                  onClick={(v) => navigate(`/video/${v.id}`)}
+                  showRating
+                />
               ))}
             </div>
           </div>
         ) : (
-          <div className="text-center py-16 text-gray-400">
-            <p className="text-xl">نەتىجە تېپىلمىدى</p>
+          <div className="text-center py-20 animate-fadeIn">
+            <SearchIcon className="w-16 h-16 text-gray-700 mx-auto mb-4" />
+            <p className="text-xl text-gray-400 mb-2">未找到相关视频</p>
+            <p className="text-sm text-gray-600">试试其他关键词或缩短搜索内容</p>
           </div>
         )
       ) : (
-        <div className="text-center py-16 text-gray-400">
-          <p className="text-xl">ئىزدەش سۆزىنى كىرگۈزۈڭ</p>
+        <div className="text-center py-20 animate-fadeIn">
+          <SearchIcon className="w-16 h-16 text-gray-700 mx-auto mb-4" />
+          <p className="text-xl text-gray-400">输入关键词搜索视频</p>
+          <p className="text-sm text-gray-600 mt-2">支持中文、维吾尔语搜索</p>
         </div>
       )}
     </div>

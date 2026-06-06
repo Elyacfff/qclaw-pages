@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Play, ChevronRight, TrendingUp, Clock, Heart } from 'lucide-react'
+import { Play, ChevronRight, TrendingUp, Clock, History, Sparkles } from 'lucide-react'
 import VideoCard from '../components/VideoCard'
+import { useAppContext } from '../App'
 
 function HomePage() {
   const navigate = useNavigate()
+  const { history } = useAppContext()
   const [videos, setVideos] = useState([])
   const [featuredVideos, setFeaturedVideos] = useState([])
   const [categories, setCategories] = useState([])
@@ -29,6 +31,7 @@ function HomePage() {
     })
   }, [])
 
+  // Auto-rotate carousel
   useEffect(() => {
     if (sliders.length > 0) {
       const timer = setInterval(() => {
@@ -38,12 +41,49 @@ function HomePage() {
     }
   }, [sliders.length])
 
+  // Continue watching: last 4 from history
+  const continueWatching = useMemo(() => {
+    return history.slice(0, 4)
+  }, [history])
+
+  // Recommended: random videos
+  const recommended = useMemo(() => {
+    if (videos.length === 0) return []
+    const shuffled = [...videos].sort(() => Math.random() - 0.5)
+    return shuffled.slice(0, 12)
+  }, [videos])
+
+  // Skeleton loading
   if (loading) {
     return (
-      <div className="min-h-screen bg-dark flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-400">加载中...</p>
+      <div className="pb-24">
+        {/* Carousel skeleton */}
+        <div className="h-[60vh] md:h-[70vh] skeleton" />
+        <div className="max-w-7xl mx-auto px-4 mt-12 space-y-12">
+          <div>
+            <div className="h-8 skeleton w-40 mb-6" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="skeleton-card">
+                  <div className="skeleton-image" />
+                  <div className="skeleton-title" />
+                  <div className="skeleton-subtitle" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="h-8 skeleton w-40 mb-6" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="skeleton-card">
+                  <div className="skeleton-image" />
+                  <div className="skeleton-title" />
+                  <div className="skeleton-subtitle" />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -51,7 +91,7 @@ function HomePage() {
 
   return (
     <div className="pb-24">
-      {/* 轮播图 */}
+      {/* Carousel */}
       {sliders.length > 0 && (
         <div className="relative h-[60vh] md:h-[70vh] overflow-hidden">
           {sliders.map((slider, index) => (
@@ -68,7 +108,7 @@ function HomePage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/60 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12 max-w-7xl mx-auto">
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-3">
+                <h2 className="text-3xl md:text-5xl font-bold text-white mb-3 animate-fadeIn">
                   {slider.title}
                 </h2>
                 {slider.titleCn && (
@@ -76,7 +116,7 @@ function HomePage() {
                 )}
                 <button
                   onClick={() => slider.videoId && navigate(`/video/${slider.videoId}`)}
-                  className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-medium transition-all hover:scale-105"
+                  className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-medium transition-all hover:scale-105 shadow-lg"
                 >
                   <Play className="w-5 h-5" fill="currentColor" />
                   立即观看
@@ -84,14 +124,14 @@ function HomePage() {
               </div>
             </div>
           ))}
-          {/* 轮播指示器 */}
+          {/* Carousel indicators */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
             {sliders.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  index === currentSlide ? 'bg-red-600 w-8' : 'bg-white/50'
+                className={`h-1.5 rounded-full transition-all ${
+                  index === currentSlide ? 'bg-red-600 w-8' : 'bg-white/50 w-3'
                 }`}
               />
             ))}
@@ -100,9 +140,59 @@ function HomePage() {
       )}
 
       <div className="max-w-7xl mx-auto px-4 mt-12">
-        {/* 精选视频 */}
+        {/* Continue Watching */}
+        {continueWatching.length > 0 && (
+          <section className="mb-12 animate-slideUp">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <History className="w-6 h-6 text-red-500" />
+                继续观看
+              </h2>
+              <button
+                onClick={() => navigate('/history')}
+                className="text-gray-400 hover:text-white flex items-center gap-1 transition-colors text-sm"
+              >
+                查看全部 <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {continueWatching.map(video => (
+                <VideoCard
+                  key={video.id}
+                  video={video}
+                  onClick={(v) => navigate(`/video/${v.id}`)}
+                  progress={video.progress || 30}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Recommended */}
+        {recommended.length > 0 && (
+          <section className="mb-12 animate-slideUp">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <Sparkles className="w-6 h-6 text-yellow-500" />
+                猜你喜欢
+              </h2>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {recommended.slice(0, 6).map(video => (
+                <VideoCard
+                  key={video.id}
+                  video={video}
+                  onClick={(v) => navigate(`/video/${v.id}`)}
+                  showRating
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Featured Videos */}
         {featuredVideos.length > 0 && (
-          <section className="mb-12">
+          <section className="mb-12 animate-slideUp">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                 <TrendingUp className="w-6 h-6 text-red-600" />
@@ -110,7 +200,7 @@ function HomePage() {
               </h2>
               <button
                 onClick={() => navigate('/category/kino')}
-                className="text-gray-400 hover:text-white flex items-center gap-1 transition-colors"
+                className="text-gray-400 hover:text-white flex items-center gap-1 transition-colors text-sm"
               >
                 查看全部 <ChevronRight className="w-4 h-4" />
               </button>
@@ -121,14 +211,15 @@ function HomePage() {
                   key={video.id}
                   video={video}
                   onClick={(v) => navigate(`/video/${v.id}`)}
+                  showRating
                 />
               ))}
             </div>
           </section>
         )}
 
-        {/* 最新视频 */}
-        <section className="mb-12">
+        {/* Latest Videos */}
+        <section className="mb-12 animate-slideUp">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
               <Clock className="w-6 h-6 text-red-600" />
@@ -136,7 +227,7 @@ function HomePage() {
             </h2>
             <button
               onClick={() => navigate('/category/kino')}
-              className="text-gray-400 hover:text-white flex items-center gap-1 transition-colors"
+              className="text-gray-400 hover:text-white flex items-center gap-1 transition-colors text-sm"
             >
               查看全部 <ChevronRight className="w-4 h-4" />
             </button>
@@ -152,19 +243,19 @@ function HomePage() {
           </div>
         </section>
 
-        {/* 分类视频 */}
+        {/* Category Sections */}
         {categories.map(category => {
           const categoryVideos = videos.filter(v => v.category === category.name)
           if (categoryVideos.length === 0) return null
           return (
-            <section key={category.id} className="mb-12">
+            <section key={category.id} className="mb-12 animate-slideUp">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-white">
                   {category.nameUy}
                 </h2>
                 <button
                   onClick={() => navigate(`/category/${category.name}`)}
-                  className="text-gray-400 hover:text-white flex items-center gap-1 transition-colors"
+                  className="text-gray-400 hover:text-white flex items-center gap-1 transition-colors text-sm"
                 >
                   查看全部 <ChevronRight className="w-4 h-4" />
                 </button>

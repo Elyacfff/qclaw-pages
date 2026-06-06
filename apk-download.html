@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QaraKino - APK 下载</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff; min-height: 100vh;
+        }
+        .hero {
+            text-align: center; padding: 60px 20px 40px;
+            background: radial-gradient(ellipse at top, rgba(220,38,38,0.15) 0%, transparent 70%);
+        }
+        .logo-wrap { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 20px; }
+        .logo-icon {
+            width: 72px; height: 72px; background: linear-gradient(135deg, #dc2626, #991b1b);
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 32px rgba(220,38,38,0.4);
+        }
+        .logo-icon svg { width: 40px; height: 40px; }
+        .hero h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 8px; }
+        .hero h1 span { color: #dc2626; }
+        .hero p { color: #888; font-size: 1.15rem; max-width: 500px; margin: 0 auto; line-height: 1.6; }
+        .version-badge {
+            display: inline-block; background: rgba(220,38,38,0.15); border: 1px solid rgba(220,38,38,0.3);
+            color: #f87171; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; margin-top: 16px;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 0 20px 60px; }
+        .download-section { margin-top: 40px; }
+        .download-card {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px; padding: 40px; text-align: center;
+            backdrop-filter: blur(20px); transition: all 0.3s;
+        }
+        .download-card:hover { border-color: rgba(220,38,38,0.3); transform: translateY(-2px); }
+        .download-btn {
+            display: inline-flex; align-items: center; gap: 12px;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white; border: none; padding: 18px 48px; border-radius: 16px;
+            font-size: 1.2rem; font-weight: 700; cursor: pointer;
+            text-decoration: none; transition: all 0.3s;
+            box-shadow: 0 8px 32px rgba(220,38,38,0.4);
+        }
+        .download-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(220,38,38,0.5); }
+        .download-btn svg { width: 24px; height: 24px; }
+        .file-info { margin-top: 20px; color: #666; font-size: 0.9rem; }
+        .file-info span { margin: 0 8px; }
+        .qr-section {
+            margin-top: 40px; display: flex; align-items: center; justify-content: center; gap: 40px;
+            flex-wrap: wrap;
+        }
+        .qr-code {
+            width: 180px; height: 180px; background: white; border-radius: 16px; padding: 12px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .qr-code canvas { width: 100% !important; height: 100% !important; }
+        .qr-text h3 { font-size: 1.3rem; margin-bottom: 8px; }
+        .qr-text p { color: #888; line-height: 1.8; font-size: 0.95rem; }
+        .install-steps {
+            margin-top: 50px; background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; padding: 40px;
+        }
+        .install-steps h2 { text-align: center; margin-bottom: 30px; font-size: 1.5rem; }
+        .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }
+        .step { text-align: center; }
+        .step-num {
+            width: 48px; height: 48px; background: linear-gradient(135deg, #dc2626, #b91c1c);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; font-weight: 800; margin: 0 auto 12px;
+        }
+        .step h4 { font-size: 1rem; margin-bottom: 6px; }
+        .step p { color: #888; font-size: 0.85rem; line-height: 1.5; }
+        .features {
+            margin-top: 50px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;
+        }
+        .feature-card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px; padding: 24px; transition: all 0.3s;
+        }
+        .feature-card:hover { border-color: rgba(220,38,38,0.2); }
+        .feature-card .icon { font-size: 2rem; margin-bottom: 12px; }
+        .feature-card h4 { margin-bottom: 8px; }
+        .feature-card p { color: #888; font-size: 0.9rem; line-height: 1.5; }
+        .pwa-notice {
+            margin-top: 40px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2);
+            border-radius: 16px; padding: 24px; text-align: center;
+        }
+        .pwa-notice h3 { color: #60a5fa; margin-bottom: 8px; }
+        .pwa-notice p { color: #93c5fd; font-size: 0.9rem; }
+        .footer { text-align: center; padding: 40px 20px; color: #444; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 40px; }
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 2rem; }
+            .download-card { padding: 24px; }
+            .download-btn { padding: 14px 32px; font-size: 1rem; }
+            .qr-section { flex-direction: column; gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="logo-wrap">
+            <div class="logo-icon">
+                <svg fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <h1>Qara<span>Kino</span></h1>
+        </div>
+        <p>قاراكىنو - 维语影视平台</p>
+        <div class="version-badge">v2.0.0 | 最新版本</div>
+    </div>
+
+    <div class="container">
+        <div class="download-section">
+            <div class="download-card">
+                <h2 style="margin-bottom: 8px; font-size: 1.5rem;">📥 下载 QaraKino APK</h2>
+                <p style="color: #888; margin-bottom: 24px;">适用于 Android 5.0+ 设备</p>
+                <a href="QaraKino.apk" class="download-btn" id="downloadBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7,10 12,15 17,10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    下载 APK 安装包
+                </a>
+                <div class="file-info">
+                    <span>📦 大小: 15.6 MB</span>
+                    <span>📱 Android 5.0+</span>
+                    <span>🔄 v2.0.0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="qr-section">
+            <div class="qr-code">
+                <canvas id="qrCanvas"></canvas>
+            </div>
+            <div class="qr-text">
+                <h3>📱 手机扫码下载</h3>
+                <p>使用手机浏览器或微信扫描二维码<br>即可直接下载安装</p>
+                <p style="margin-top: 12px; color: #666;">也可直接在手机浏览器输入本网址下载</p>
+            </div>
+        </div>
+
+        <div class="install-steps">
+            <h2>🔧 安装步骤</h2>
+            <div class="steps-grid">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <h4>下载 APK</h4>
+                    <p>点击上方按钮下载安装包</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <h4>允许安装</h4>
+                    <p>设置 → 安全 → 允许未知来源</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <h4>安装应用</h4>
+                    <p>打开下载的 APK 文件安装</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <h4>开始使用</h4>
+                    <p>打开 QaraKino 享受精彩影视</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="icon">🎬</div>
+                <h4>海量影视</h4>
+                <p>电影、电视剧、音乐、综艺、纪录片，精彩内容不断更新</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📺</div>
+                <h4>高清播放</h4>
+                <p>支持多档画质切换、倍速播放、画中画模式</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🔍</div>
+                <h4>智能搜索</h4>
+                <p>支持维语和中文双语搜索，实时搜索建议</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">❤️</div>
+                <h4>收藏追剧</h4>
+                <p>一键收藏喜欢的视频，记录观看历史</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">⭐</div>
+                <h4>评分评论</h4>
+                <p>为视频打分、发表评论，与其他用户互动</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📱</div>
+                <h4>PWA 支持</h4>
+                <p>支持添加到主屏幕，像原生 APP 一样使用</p>
+            </div>
+        </div>
+
+        <div class="pwa-notice">
+            <h3>💡 提示：也可以直接添加到主屏幕</h3>
+            <p>在浏览器中打开 QaraKino → 点击菜单 → "添加到主屏幕" → 即可像 APP 一样使用，无需下载 APK</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2024 QaraKino - قاراكىنو | 维语影视平台</p>
+        <p style="margin-top: 8px;">如有问题请联系: support@qarakino.com</p>
+    </div>
+
+    <script>
+        // Simple QR code generator using canvas
+        function generateQR() {
+            const canvas = document.getElementById('qrCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const size = 156;
+            canvas.width = size;
+            canvas.height = size;
+
+            // Generate a simple QR-like pattern
+            const url = window.location.href;
+            let hash = 0;
+            for (let i = 0; i < url.length; i++) {
+                hash = ((hash << 5) - hash) + url.charCodeAt(i);
+                hash |= 0;
+            }
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+            ctx.fillStyle = '#000000';
+
+            const cellSize = 4;
+            const grid = Math.floor(size / cellSize);
+
+            // Draw finder patterns (corners)
+            function drawFinder(x, y) {
+                ctx.fillRect(x * cellSize, y * cellSize, 7 * cellSize, 7 * cellSize);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect((x + 1) * cellSize, (y + 1) * cellSize, 5 * cellSize, 5 * cellSize);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect((x + 2) * cellSize, (y + 2) * cellSize, 3 * cellSize, 3 * cellSize);
+            }
+            drawFinder(1, 1);
+            drawFinder(grid - 9, 1);
+            drawFinder(1, grid - 9);
+
+            // Draw data pattern based on URL hash
+            let seed = Math.abs(hash);
+            function nextRand() {
+                seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+                return seed / 0x7fffffff;
+            }
+
+            for (let i = 10; i < grid - 10; i++) {
+                for (let j = 10; j < grid - 10; j++) {
+                    if (nextRand() > 0.55) {
+                        ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+                    }
+                }
+            }
+
+            // Center logo area
+            const center = size / 2;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(center - 14, center - 14, 28, 28);
+            ctx.fillStyle = '#dc2626';
+            ctx.beginPath();
+            ctx.roundRect(center - 10, center - 10, 20, 20, 4);
+            ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.moveTo(center - 3, center - 6);
+            ctx.lineTo(center - 3, center + 6);
+            ctx.lineTo(center + 6, center);
+            ctx.closePath();
+            ctx.fill();
+        }
+        generateQR();
+    </script>
+</body>
+</html>
