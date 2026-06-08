@@ -1,0 +1,13 @@
+{
+  "name": "qarakino",
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "startCommand": "node server.js",
+    "env": {
+      "NODE_ENV": "production",
+      "PORT": "10000"
+    }
+  }
+}
