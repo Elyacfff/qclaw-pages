@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ug">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QaraKino - قاراكىنو</title>
+    <meta name="description" content="QaraKino - ئۇيغۇرچە ۋىدېئو سۇپىسى | Uyghur Video Streaming Platform">
+    <meta name="theme-color" content="#dc2626">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #fff; }
+        
+        /* Header */
+        .header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,10,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 12px; font-size: 1.5rem; font-weight: 800; color: #dc2626; }
+        .logo svg { width: 36px; height: 36px; }
+        .nav-links { display: flex; gap: 24px; }
+        .nav-links a { color: #888; text-decoration: none; font-size: 0.95rem; transition: color 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color: #fff; }
+        .menu-btn { display: none; background: none; border: none; color: #fff; cursor: pointer; padding: 8px; }
+
+        /* Hero */
+        .hero { margin-top: 60px; position: relative; height: 500px; overflow: hidden; }
+        .hero-slider { display: flex; transition: transform 0.5s ease; height: 100%; }
+        .hero-slide { min-width: 100%; position: relative; }
+        .hero-slide img { width: 100%; height: 100%; object-fit: cover; }
+        .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 50%, transparent 100%); display: flex; align-items: center; padding: 0 80px; }
+        .hero-content { max-width: 500px; }
+        .hero-badge { display: inline-block; background: #dc2626; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 16px; }
+        .hero-title { font-size: 3rem; font-weight: 800; margin-bottom: 16px; line-height: 1.2; }
+        .hero-title span { color: #dc2626; }
+        .hero-meta { display: flex; gap: 16px; color: #888; font-size: 0.9rem; margin-bottom: 16px; }
+        .hero-desc { color: #ccc; font-size: 1.1rem; line-height: 1.6; margin-bottom: 24px; }
+        .hero-btns { display: flex; gap: 12px; }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-size: 1rem; font-weight: 600; text-decoration: none; transition: all 0.2s; cursor: pointer; border: none; }
+        .btn-primary { background: #dc2626; color: #fff; }
+        .btn-primary:hover { background: #b91c1c; transform: translateY(-2px); }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+        .slider-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+        .slider-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.3); cursor: pointer; transition: all 0.2s; }
+        .slider-dot.active { background: #dc2626; width: 30px; border-radius: 5px; }
+
+        /* Main Content */
+        .main { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+        
+        /* Section */
+        .section { margin-bottom: 48px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .section-title { font-size: 1.5rem; font-weight: 700; }
+        .section-link { color: #dc2626; text-decoration: none; font-size: 0.9rem; }
+        
+        /* Categories */
+        .categories { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 32px; }
+        .category { padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
+        .category:hover, .category.active { background: #dc2626; border-color: #dc2626; }
+        
+        /* Video Grid */
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; }
+        .video-card { background: rgba(255,255,255,0.03); border-radius: 16px; overflow: hidden; transition: all 0.3s; cursor: pointer; }
+        .video-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .video-thumb { position: relative; aspect-ratio: 16/9; overflow: hidden; }
+        .video-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+        .video-card:hover .video-thumb img { transform: scale(1.1); }
+        .video-duration { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; }
+        .video-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.2s; }
+        .video-card:hover .video-play { opacity: 1; }
+        .video-play svg { width: 60px; height: 60px; color: #fff; }
+        .video-info { padding: 16px; }
+        .video-title { font-size: 1rem; font-weight: 600; margin-bottom: 8px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .video-meta { display: flex; justify-content: space-between; color: #666; font-size: 0.85rem; }
+        .video-rating { display: flex; align-items: center; gap: 4px; color: #fbbf24; }
+
+        /* Video Modal */
+        .modal { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal.active { display: flex; }
+        .modal-content { width: 100%; max-width: 1000px; background: #1a1a1a; border-radius: 20px; overflow: hidden; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .modal-close { background: none; border: none; color: #888; cursor: pointer; padding: 8px; }
+        .modal-close:hover { color: #fff; }
+        .modal-video { aspect-ratio: 16/9; background: #000; }
+        .modal-video video { width: 100%; height: 100%; }
+        .modal-info { padding: 24px; }
+        .modal-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 12px; }
+        .modal-meta { display: flex; gap: 20px; color: #888; font-size: 0.9rem; margin-bottom: 16px; }
+        .modal-desc { color: #ccc; line-height: 1.7; }
+
+        /* Search */
+        .search-bar { display: flex; gap: 12px; margin-bottom: 32px; }
+        .search-input { flex: 1; padding: 14px 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; font-size: 1rem; outline: none; }
+        .search-input:focus { border-color: #dc2626; }
+
+        /* Footer */
+        .footer { text-align: center; padding: 40px 20px; border-top: 1px solid rgba(255,255,255,0.1); color: #666; }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .menu-btn { display: block; }
+            .hero { height: 400px; }
+            .hero-overlay { padding: 0 20px; }
+            .hero-title { font-size: 2rem; }
+            .hero-btns { flex-direction: column; }
+            .video-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            QaraKino
+        </div>
+        <nav class="nav-links">
+            <a href="#" class="active">باش بەت</a>
+            <a href="#">كىنو</a>
+            <a href="#">سېرىال</a>
+            <a href="#">مۇزىكا</a>
+        </nav>
+        <button class="menu-btn">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-slider" id="heroSlider"></div>
+        <div class="slider-dots" id="sliderDots"></div>
+    </section>
+
+    <!-- Main -->
+    <main class="main">
+        <!-- Search -->
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="كىنو، سېرىال ياكى مۇزىكا ئىزدەش..." id="searchInput">
+        </div>
+
+        <!-- Categories -->
+        <div class="categories" id="categories"></div>
+
+        <!-- Featured -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">📌 ماھىر تېلېۋىزىيە</h2>
+            </div>
+            <div class="video-grid" id="featuredGrid"></div>
+        </section>
+
+        <!-- Movies -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">🎬 كىنولار</h2>
+            </div>
+            <div class="video-grid" id="moviesGrid"></div>
+        </section>
+
+        <!-- Music -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">🎵 مۇزىكا</h2>
+            </div>
+            <div class="video-grid" id="musicGrid"></div>
+        </section>
+    </main>
+
+    <!-- Video Modal -->
+    <div class="modal" id="videoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle"></h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-video">
+                <video id="modalVideo" controls autoplay></video>
+            </div>
+            <div class="modal-info">
+                <div class="modal-meta" id="modalMeta"></div>
+                <p class="modal-desc" id="modalDesc"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>QaraKino © 2024 - ئۇيغۇرچە ۋىدېئو سۇپىسى</p>
+    </footer>
+
+    <script>
+        // Sample Data
+        const videos = [
+            { id: 1, title: 'ئاخىرقى كىنو', titleCn: '最新电影', category: 'kino', thumbnail: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&h=600&fit=crop', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', duration: '02:00:00', views: 12500, rating: 4.5, year: 2024, director: 'ئەمەت يۈسۈپ', description: 'بۇ بىر ئالىي سۈپەتلىك كىنو، كۆرۈشكە ئەرزىيدۇ.', descriptionCn: '这是一部高质量电影，值得观看。', featured: true },
+            { id: 2, title: 'سېرىال تېلېۋىزىيە', titleCn: '热门剧集', category: 'serial', thumbnail: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&h=600&fit=crop', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', duration: '00:45:00', views: 8900, rating: 4.2, year: 2024, director: 'رەشىد ئابدۇللا', description: 'دىققەتلىك سېرىال، ھەر قىسىمى سىزنى ھەيران قالدۇرىدۇ.', descriptionCn: '精彩电视剧，每一集都会让你惊叹。', featured: true },
+            { id: 3, title: 'كۆڭۈلدىكى مۇزىكا', titleCn: '心动音乐', category: 'music', thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=600&fit=crop', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', duration: '00:05:30', views: 25000, rating: 4.8, year: 2023, director: 'مەريەم نۇر', description: 'چىرايلىق مۇزىكا كلىپى، كۆڭلىڭىزنى ئېچىدۇ.', descriptionCn: '美丽的音乐视频，打开你的心扉。', featured: false },
+            { id: 4, title: 'كومىدىيە كىنوسى', titleCn: '喜剧电影', category: 'comedy', thumbnail: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=600&fit=crop', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', duration: '01:35:00', views: 18700, rating: 4.0, year: 2023, director: 'ئىلى ئەھمەد', description: 'كۈلۈشكە تولغان كىنو، كەيپىياتىڭىزنى ياخشىلايدۇ.', descriptionCn: '充满笑声的电影，改善你的心情。', featured: false },
+            { id: 5, title: 'تەبىئەت دۇنياسى', titleCn: '自然世界', category: 'documentary', thumbnail: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=600&fit=crop', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4', duration: '01:20:00', views: 5200, rating: 4.7, year: 2024, director: 'زۇلپىقار مەت', description: 'گۈزەل تەبىئەت مەنزىرىلىرى ۋە ھايۋانلار دۇنياسى.', descriptionCn: '美丽的自然风景和动物世界。', featured: true },
+            { id: 6, title: 'مۇھەببەت ھېكايىسى', titleCn: '爱情故事', category: 'kino', thumbnail: 'https://images.unsplash.com/photo-1518676590747-1e3dcf5a4e32?w=400&h=600&fit=crop', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', duration: '01:50:00', views: 31000, rating: 4.3, year: 2023, director: 'گۈلنار ئوسمان', description: 'رومانتىك مۇھەببەت كىنوسى، كۆز يېشى قىلىشىڭىز مۇمكىن.', descriptionCn: '浪漫爱情电影，可能会让你流泪。', featured: false },
+            { id: 7, title: 'بالىلار ئانىمىسىيەسى', titleCn: '儿童动画', category: 'animation', thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=600&fit=crop', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4', duration: '01:25:00', views: 42000, rating: 4.9, year: 2024, director: 'ئابدۇرېھىم خۇدايى', description: 'بالىلارنىڭ ياقتۇرىدىغان ئانىمىسىيە فىلىمى.', descriptionCn: '孩子们喜欢的动画电影。', featured: true },
+            { id: 8, title: 'كۈلدۈرگە كېچىلىكى', titleCn: '搞笑之夜', category: 'comedy', thumbnail: 'https://images.unsplash.com/photo-1585699324551-f6c309eedeca?w=400&h=600&fit=crop', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4', duration: '01:10:00', views: 15800, rating: 3.8, year: 2024, director: 'نۇرمەمەت تۇرسۇن', description: 'كۈلدۈرگە ئارتىسلىرىنىڭ مەيداندا ئويۇنى.', descriptionCn: '搞笑演员的现场表演。', featured: false },
+            { id: 9, title: 'شىنجاڭ گۈزەللىكى', titleCn: '新疆之美', category: 'documentary', thumbnail: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&h=600&fit=crop', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4', duration: '00:55:00', views: 9600, rating: 4.6, year: 2023, director: 'ئايشەم ئىسمايىل', description: 'شىنجاڭنىڭ گۈزەل مەنزىرىلىرى ۋە مەدەنىيىتى.', descriptionCn: '新疆的美丽风景和文化。', featured: false },
+            { id: 10, title: 'يېڭى ناخشا', titleCn: '新歌', category: 'music', thumbnail: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=600&fit=crop', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4', duration: '00:04:15', views: 67000, rating: 4.4, year: 2024, director: 'ئەكرەم روزى', description: 'يېڭىدىن چىققان ئۇيغۇر ناخشىسى.', descriptionCn: '最新发布的维吾尔歌曲。', featured: true }
+        ];
+
+        const categories = [
+            { name: 'ھەممە', key: 'all' },
+            { name: 'كىنو', key: 'kino' },
+            { name: 'سېرىال', key: 'serial' },
+            { name: 'مۇزىكا', key: 'music' },
+            { name: 'كومىدىيە', key: 'comedy' },
+            { name: 'سەنئەت', key: 'documentary' },
+            { name: 'ئانىمىسىيە', key: 'animation' }
+        ];
+
+        const sliders = [
+            { title: 'ئاخىرقى كىنولار', titleCn: '最新电影', image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920&h=800&fit=crop', video: videos[0] },
+            { title: 'ماھىر سېرىاللار', titleCn: '热门剧集', image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&h=800&fit=crop', video: videos[1] },
+            { title: 'بالىلار ئانىمىسىيەسى', titleCn: '儿童动画', image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1920&h=800&fit=crop', video: videos[6] }
+        ];
+
+        // Render Functions
+        function renderSliders() {
+            const sliderEl = document.getElementById('heroSlider');
+            const dotsEl = document.getElementById('sliderDots');
+            
+            sliderEl.innerHTML = sliders.map((slide, i) => `
+                <div class="hero-slide">
+                    <img src="${slide.image}" alt="${slide.title}">
+                    <div class="hero-overlay">
+                        <div class="hero-content">
+                            <span class="hero-badge">🔥 ماھىر</span>
+                            <h1 class="hero-title">${slide.title}</h1>
+                            <div class="hero-meta">
+                                <span>⭐ ${slide.video.rating}</span>
+                                <span>👁 ${(slide.video.views/1000).toFixed(1)}K</span>
+                                <span>📅 ${slide.video.year}</span>
+                            </div>
+                            <p class="hero-desc">${slide.video.description}</p>
+                            <div class="hero-btns">
+                                <button class="btn btn-primary" onclick="openModal(${slide.video.id})">
+                                    <svg width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                                    ھەققە
+                                </button>
+                                <button class="btn btn-secondary">♡ ياقتۇرۇش</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            dotsEl.innerHTML = sliders.map((_, i) => `<div class="slider-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></div>`).join('');
+        }
+
+        function renderCategories() {
+            const el = document.getElementById('categories');
+            el.innerHTML = categories.map(cat => `
+                <button class="category ${cat.key === 'all' ? 'active' : ''}" onclick="filterCategory('${cat.key}')">${cat.name}</button>
+            `).join('');
+        }
+
+        function renderVideos(containerId, filteredVideos) {
+            const el = document.getElementById(containerId);
+            el.innerHTML = filteredVideos.map(video => `
+                <div class="video-card" onclick="openModal(${video.id})">
+                    <div class="video-thumb">
+                        <img src="${video.thumbnail}" alt="${video.title}">
+                        <span class="video-duration">${video.duration}</span>
+                        <div class="video-play">
+                            <svg fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">${video.title}</h3>
+                        <div class="video-meta">
+                            <span>${(video.views/1000).toFixed(1)}K كۆرۈلۈش</span>
+                            <span class="video-rating">⭐ ${video.rating}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAllGrids() {
+            const featured = videos.filter(v => v.featured);
+            const movies = videos.filter(v => v.category === 'kino');
+            const music = videos.filter(v => v.category === 'music');
+            
+            renderVideos('featuredGrid', featured);
+            renderVideos('moviesGrid', movies);
+            renderVideos('musicGrid', music);
+        }
+
+        // Modal Functions
+        function openModal(id) {
+            const video = videos.find(v => v.id === id);
+            if (!video) return;
+            
+            document.getElementById('modalTitle').textContent = video.title;
+            document.getElementById('modalVideo').src = video.videoUrl;
+            document.getElementById('modalMeta').innerHTML = `
+                <span>⭐ ${video.rating} (${video.ratingCount || ''})</span>
+                <span>👁 ${(video.views/1000).toFixed(1)}K</span>
+                <span>📅 ${video.year}</span>
+                <span>🎬 ${video.director}</span>
+            `;
+            document.getElementById('modalDesc').textContent = video.description;
+            
+            document.getElementById('videoModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('videoModal').classList.remove('active');
+            document.getElementById('modalVideo').pause();
+            document.body.style.overflow = '';
+        }
+
+        // Slider Functions
+        let currentSlide = 0;
+        function goToSlide(index) {
+            currentSlide = index;
+            document.getElementById('heroSlider').style.transform = `translateX(-${index * 100}%)`;
+            document.querySelectorAll('.slider-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % sliders.length;
+            goToSlide(currentSlide);
+        }, 5000);
+
+        // Filter Function
+        function filterCategory(key) {
+            document.querySelectorAll('.category').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.trim() === categories.find(c => c.key === key).name);
+            });
+            
+            let filtered = key === 'all' ? videos : videos.filter(v => v.category === key);
+            renderVideos('featuredGrid', filtered.filter(v => v.featured));
+            renderVideos('moviesGrid', filtered.filter(v => v.category === 'kino'));
+            renderVideos('musicGrid', filtered.filter(v => v.category === 'music'));
+        }
+
+        // Search Function
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            if (!query) {
+                renderAllGrids();
+                return;
+            }
+            
+            const filtered = videos.filter(v => 
+                v.title.toLowerCase().includes(query) ||
+                v.titleCn.toLowerCase().includes(query) ||
+                v.description.toLowerCase().includes(query)
+            );
+            
+            document.getElementById('featuredGrid').innerHTML = '';
+            renderVideos('moviesGrid', filtered);
+            document.getElementById('musicGrid').innerHTML = '';
+        });
+
+        // Close modal on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // Close modal on backdrop click
+        document.getElementById('videoModal').addEventListener('click', (e) => {
+            if (e.target.id === 'videoModal') closeModal();
+        });
+
+        // Initialize
+        renderSliders();
+        renderCategories();
+        renderAllGrids();
+    </script>
+</body>
+</html>
