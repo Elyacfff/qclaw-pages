@@ -1,29 +1,411 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QClaw - AI 智能助手</title>
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; color:#fff; }
-        .card { text-align:center; padding:3rem; max-width:600px; }
-        h1 { font-size:3rem; margin-bottom:1rem; background: linear-gradient(90deg, #00d2ff, #3a7bd5); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-        p { font-size:1.2rem; color:#aab; margin-bottom:2rem; line-height:1.8; }
-        .badge { display:inline-block; background:rgba(0,210,255,0.15); color:#00d2ff; padding:0.5rem 1.2rem; border-radius:50px; margin:0.3rem; font-size:0.9rem; }
-        .powered { margin-top:2rem; font-size:0.8rem; color:#556; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>MOMO影视</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:#f5f5f7;color:#1d1d1f;overflow-x:hidden}
+#app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;background:#fff;padding-bottom:70px}
+.hdr{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(0,0,0,.05)}
+.hdr-t{font-size:20px;font-weight:700;background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.pg{display:none;padding:12px}
+.pg.on{display:block}
+.sec{margin-bottom:20px}
+.sec-h{font-size:16px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pc{border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.06);cursor:pointer;transition:transform .2s}
+.pc:active{transform:scale(.96)}
+.pc-i{width:100%;aspect-ratio:2/3;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;font-weight:600}
+.pc-t{padding:8px;font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-s{font-size:11px;color:#ff9500;padding:0 8px 8px}
+.tab{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);display:flex;border-top:1px solid rgba(0,0,0,.05);z-index:1000}
+.ti{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 0;cursor:pointer;color:#86868b;transition:all .2s}
+.ti.on{color:#667eea}
+.ti i{font-size:22px;margin-bottom:2px}
+.ti s{font-size:10px;font-style:none;text-decoration:none}
+.flt{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.flt::-webkit-scrollbar{display:none}
+.ft{flex-shrink:0;padding:6px 14px;border-radius:20px;background:#f5f5f7;font-size:13px;color:#1d1d1f;cursor:pointer;white-space:nowrap}
+.ft.on{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:none;align-items:flex-end}
+.mask.on{display:flex}
+.sht{width:100%;max-width:480px;margin:0 auto;background:#fff;border-radius:20px 20px 0 0;padding:20px;max-height:85vh;overflow-y:auto;animation:slideUp .3s}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mv-t{font-size:20px;font-weight:700;margin-bottom:8px}
+.mv-m{display:flex;gap:12px;font-size:13px;color:#86868b;margin-bottom:12px;flex-wrap:wrap}
+.mv-d{font-size:14px;line-height:1.6;color:#424245;margin-bottom:16px}
+.ply-b{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px}
+.eps-g{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.ep-b{width:44px;height:36px;border:1px solid #e5e5ea;border-radius:8px;background:#fff;cursor:pointer;font-size:13px}
+.ep-b.on{background:#667eea;color:#fff;border-color:#667eea}
+.src-g{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.src-b{padding:6px 14px;border-radius:8px;background:#f5f5f7;font-size:13px;cursor:pointer;border:none}
+.src-b.on{background:#667eea;color:#fff}
+.plyr{position:fixed;inset:0;background:#000;z-index:3000;display:none;flex-direction:column}
+.plyr.on{display:flex}
+.plyr-t{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;color:#fff}
+.plyr-t span{cursor:pointer;padding:8px}
+.plyr-c{flex:1;display:flex;align-items:center;justify-content:center}
+.plyr-f{width:100%;height:100%;border:none}
+.cb{display:none;text-align:center;padding:40px 20px}
+.cb.on{display:block}
+.vip-c{width:100%;max-width:320px;margin:0 auto;background:linear-gradient(135deg,#f6d365,#fda085);border-radius:20px;padding:24px;color:#fff;margin-bottom:20px}
+.vip-c h3{font-size:22px;margin-bottom:8px}
+.vip-p{font-size:36px;font-weight:700;margin-bottom:8px}
+.pkg-g{display:flex;gap:12px;margin-bottom:24px;justify-content:center}
+.pkg{padding:16px 20px;border-radius:16px;border:2px solid #e5e5ea;cursor:pointer;text-align:center;min-width:90px}
+.pkg.on{border-color:#667eea;background:#f5f5ff}
+.pkg-n{font-size:14px;color:#424245;margin-bottom:4px}
+.pkg-p{font-size:20px;font-weight:700;color:#667eea}
+.tst{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.8);color:#fff;padding:12px 24px;border-radius:8px;z-index:9999;display:none;font-size:14px}
+.btns{display:flex;gap:12px}
+.btn1{flex:1;padding:12px;border:1px solid #e5e5ea;border-radius:12px;background:#fff;font-size:14px;cursor:pointer}
+.btn2{flex:1;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:14px;cursor:pointer}
+.wx-b{width:100%;padding:14px;border:none;border-radius:12px;background:#07c160;color:#fff;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px}
+.pay-m{text-align:center;padding:20px}
+.pay-m p{margin-bottom:16px;color:#86868b}
+</style>
 </head>
 <body>
-    <div class="card">
-        <h1>🚀 QClaw</h1>
-        <p>全栈 AI 智能助手，随时随地帮您高效干活</p>
-        <div>
-            <span class="badge">🤖 AI Agent</span>
-            <span class="badge">☁️ 云端部署</span>
-            <span class="badge">⚡ 实时响应</span>
-        </div>
-        <div class="powered">Powered by GitHub Pages</div>
-    </div>
+<div id="app">
+<header class="hdr" id="hdr"><div class="hdr-t">MOMO影视</div></header>
+<div id="tst" class="tst"></div>
+
+<div class="pg on" id="pg-home">
+<div class="sec"><div class="sec-h">热门推荐</div><div class="grid" id="hot-list"></div></div>
+<div class="sec"><div class="sec-h">电影</div><div class="grid" id="movie-list"></div></div>
+<div class="sec"><div class="sec-h">电视剧</div><div class="grid" id="tv-list"></div></div>
+<div class="sec"><div class="sec-h">动漫</div><div class="grid" id="anime-list"></div></div>
+<div class="sec"><div class="sec-h">综艺</div><div class="grid" id="variety-list"></div></div>
+</div>
+
+<div class="pg" id="pg-cat">
+<div class="flt" id="type-flt"></div>
+<div class="flt" id="year-flt"></div>
+<div class="flt" id="region-flt"></div>
+<div class="flt" id="genre-flt"></div>
+<div class="grid" id="cat-list" style="margin-top:16px"></div>
+</div>
+
+<div class="pg" id="pg-lib"><div class="grid" id="lib-list"></div></div>
+
+<div class="pg" id="pg-me">
+<div id="logged-out" class="cb on">
+<div style="font-size:60px;margin-bottom:16px">👤</div><p style="color:#86868b;margin-bottom:24px">登录后享受更多精彩</p>
+<button class="wx-b" onclick="wxLogin()">💬 微信一键登录</button>
+</div>
+<div id="logged-in" class="cb">
+<div style="font-size:60px;margin-bottom:12px" id="user-avatar">👤</div>
+<div style="font-size:18px;font-weight:600;margin-bottom:8px" id="user-name"></div>
+<div id="vip-status" style="margin-bottom:24px"></div>
+<div class="btns"><button class="btn1" onclick="switchTab('home')">返回首页</button><button class="btn2" onclick="showVip()" id="vip-btn">开通VIP</button></div>
+</div>
+</div>
+
+<div class="tab">
+<div class="ti on" data-t="home" onclick="switchTab('home',this)"><i>🏠</i><s>首页</s></div>
+<div class="ti" data-t="cat" onclick="switchTab('cat',this)"><i>🎬</i><s>分类</s></div>
+<div class="ti" data-t="lib" onclick="switchTab('lib',this)"><i>🎞️</i><s>电影</s></div>
+<div class="ti" data-t="me" onclick="switchTab('me',this)"><i>👤</i><s>我的</s></div>
+</div>
+</div>
+
+<div class="mask" id="dtl-mask"><div class="sht" id="dtl-content"></div></div>
+<div class="mask" id="vip-mask" style="align-items:center"><div class="sht" style="border-radius:20px">
+<h3 style="text-align:center;margin-bottom:8px">开通VIP会员</h3>
+<p style="text-align:center;color:#86868b;margin-bottom:20px">尊享全站高清内容</p>
+<div class="pkg-g" id="pkg-list"></div>
+<button class="ply-b" onclick="payVip()">立即开通</button>
+<button class="btn1" style="width:100%" onclick="closeVip()">取消</button>
+</div></div>
+<div class="mask" id="pay-mask" style="align-items:center"><div class="sht" style="border-radius:20px">
+<div class="pay-m">
+<h3 style="margin-bottom:16px">订单支付</h3>
+<p>订单号：<span id="pay-order"></span></p>
+<p>支付金额：<span style="color:#ff6b6b;font-size:24px;font-weight:700" id="pay-amount"></span></p>
+<div style="display:flex;gap:12px;margin:24px 0">
+<button class="wx-b" onclick="doPay('wx')" style="flex:1">微信支付</button>
+<button class="wx-b" onclick="doPay('ali')" style="flex:1;background:#1677ff">支付宝</button>
+</div>
+<button class="btn1" style="width:100%" onclick="closePay()">取消支付</button>
+</div>
+</div></div>
+<div class="plyr" id="plyr"><div class="plyr-t"><span onclick="closePly()">← 返回</span><span id="ply-title"></span><span style="width:40px"></span></div><div class="plyr-c"><iframe id="ply-f" class="plyr-f" allowfullscreen allow="autoplay; fullscreen; encrypted-media"></iframe></div></div>
+
+<script>
+// ==================== 内置36部完整影片数据 ====================
+var MOVIES = [
+    {id:1,t:'流浪地球2',y:2023,r:'中国大陆',g:'科幻',s:8.3,d:'太阳即将毁灭，人类在地球表面建造出巨大的推进器，寻找新的家园。',type:'movie',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc00200mp8vo9b.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc00200mp8vo9b.html','https://www.m3u8.tv/jiexi/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc00200mp8vo9b.html']},
+    {id:2,t:'满江红',y:2023,r:'中国大陆',g:'悬疑',s:7.0,d:'南宋绍兴年间，岳飞死后四年，秦桧率兵与金国会谈。',type:'movie',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc002003g7d0ab.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc002003g7d0ab.html']},
+    {id:3,t:'孤注一掷',y:2023,r:'中国大陆',g:'犯罪',s:7.0,d:'程序员潘生、模特安娜被海外高薪招聘吸引，出国淘金却意外落入境外诈骗工厂陷阱。',type:'movie',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc00200t3fd6.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc00200t3fd6.html']},
+    {id:4,t:'消失的她',y:2023,r:'中国大陆',g:'悬疑',s:6.4,d:'何非的妻子李木子在结婚周年旅行中离奇消失，而一位自称李木子的女子出现在他身边。',type:'movie',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc002001a3z9.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc002001a3z9.html']},
+    {id:5,t:'八角笼中',y:2023,r:'中国大陆',g:'剧情',s:7.5,d:'向腾辉倾注心血想把当地无人照料的孩子培养成才，生活却给他们布下了重重陷阱。',type:'movie',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc00200290x0.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc00200290x0.html']},
+    {id:6,t:'封神第一部',y:2023,r:'中国大陆',g:'奇幻',s:7.8,d:'商王殷寿勾结狐妖妲己，暴虐无道，引发天谴。昆仑仙人姜子牙携封神榜下山寻找天下共主。',type:'movie',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc00200499n1.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc00200499n1.html']},
+    {id:7,t:'长津湖',y:2021,r:'中国大陆',g:'战争',s:7.4,d:'1950年，中国人民志愿军部队与美军在朝鲜长津湖地区交战，创造了抗美援朝战争中全歼美军一个整团的纪录。',type:'movie',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc0020078.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc0020078.html']},
+    {id:8,t:'你好，李焕英',y:2021,r:'中国大陆',g:'喜剧',s:7.7,d:'贾晓玲意外回到1981年，与年轻时代的母亲李焕英相遇，两人形影不离，宛如闺蜜。',type:'movie',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc00200lhy.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc00200lhy.html']},
+    {id:9,t:'战狼2',y:2017,r:'中国大陆',g:'动作',s:7.1,d:'被开除军籍的冷锋本是因寻找女友龙小云来到非洲，却突然卷入一场非洲国家的叛乱。',type:'movie',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fbh7m2.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fbh7m2.html']},
+    {id:10,t:'哪吒之魔童降世',y:2019,r:'中国大陆',g:'动画',s:8.4,d:'天地灵气孕育出一颗能量巨大的混元珠，元始天尊将其提炼成灵珠和魔丸，阴差阳错，魔丸转世为陈塘关李靖之子哪吒。',type:'movie',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fne2019.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fne2019.html']},
+    
+    {id:11,t:'狂飙',y:2023,r:'中国大陆',g:'剧情',s:8.5,d:'京海市一线刑警安欣与黑恶势力高启强等人长达二十年的正邪较量及扫黑除恶行动。',type:'tv',eps:39,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrhhz62h.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrhhz62h.html']},
+    {id:12,t:'三体',y:2023,r:'中国大陆',g:'科幻',s:8.7,d:'2007年，地球基础科学出现了异常的扰动，科学家汪淼与警官史强联手调查，发现了人类即将面临的生存危机。',type:'tv',eps:30,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc002002s6a.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc002002s6a.html']},
+    {id:13,t:'去有风的地方',y:2023,r:'中国大陆',g:'爱情',s:8.4,d:'许红豆因为闺蜜去世，生活和工作陷入低谷，她独自前往大理云苗村的有风小院休息调整。',type:'tv',eps:40,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrhl6q0l.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrhl6q0l.html']},
+    {id:14,t:'漫长的季节',y:2023,r:'中国大陆',g:'悬疑',s:9.4,d:'小城桦林，出租车司机王响做梦也没想到，他以为早已过去的事情，会在晚年以意想不到的方式重新出现。',type:'tv',eps:12,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc002003b5a.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc002003b5a.html']},
+    {id:15,t:'繁花',y:2023,r:'中国大陆',g:'剧情',s:8.2,d:'上世纪九十年代的上海，阿宝凭借改革开放的春风和自己的打拼，成为商界传奇。',type:'tv',eps:30,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc002008o6z.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc002008o6z.html']},
+    {id:16,t:'庆余年第二季',y:2024,r:'中国大陆',g:'古装',s:7.3,d:'范闲在经历了生死考验后，重返京城，继续与各方势力周旋，揭开更多秘密。',type:'tv',eps:36,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrhw2f6x.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrhw2f6x.html']},
+    {id:17,t:'与凤行',y:2024,r:'中国大陆',g:'古装',s:7.5,d:'上古神君行止与魔界女王爷沈璃之间的旷世之恋，历经三生三世的爱恨纠缠。',type:'tv',eps:40,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc002009w3d.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc002009w3d.html']},
+    {id:18,t:'玫瑰的故事',y:2024,r:'中国大陆',g:'爱情',s:7.2,d:'黄亦玫的四段感情经历，从青春懵懂到成熟独立，展现现代女性的成长与蜕变。',type:'tv',eps:38,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrhxq30l.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrhxq30l.html']},
+    {id:19,t:'墨雨云间',y:2024,r:'中国大陆',g:'古装',s:7.8,d:'薛芳菲重生归来，化身姜梨，在萧蘅的帮助下，一步步向仇人复仇。',type:'tv',eps:40,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc002007z8r.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fmzc002007z8r.html']},
+    {id:20,t:'我的阿勒泰',y:2024,r:'中国大陆',g:'剧情',s:8.8,d:'汉族女孩李文秀回到新疆阿勒泰，与母亲和当地牧民一起生活，在广袤的草原上寻找自我与爱情。',type:'tv',eps:8,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrhz5q7l.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrhz5q7l.html']},
+    
+    {id:21,t:'咒术回战',y:2020,r:'日本',g:'动画',s:8.5,d:'高中生虎杖悠仁为了救同学，吞下了特级咒物两面宿傩的手指，从此卷入咒术师的世界。',type:'anime',eps:24,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.bilibili.com%2Fbangumi%2Fplay%2Fep306988','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.bilibili.com%2Fbangumi%2Fplay%2Fep306988']},
+    {id:22,t:'鬼灭之刃',y:2019,r:'日本',g:'动画',s:9.1,d:'炭治郎一家惨遭鬼杀害，妹妹祢豆子变成了鬼，炭治郎踏上了让妹妹变回人类和讨伐恶鬼的道路。',type:'anime',eps:26,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.bilibili.com%2Fbangumi%2Fplay%2Fep267851','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.bilibili.com%2Fbangumi%2Fplay%2Fep267851']},
+    {id:23,t:'进击的巨人',y:2013,r:'日本',g:'动画',s:9.3,d:'人类居住在由高墙包围的城市中，对抗着会吃人的巨人，艾伦耶格尔立志要消灭所有巨人。',type:'anime',eps:87,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.bilibili.com%2Fbangumi%2Fplay%2Fss1259','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.bilibili.com%2Fbangumi%2Fplay%2Fss1259']},
+    {id:24,t:'间谍过家家',y:2022,r:'日本',g:'动画',s:8.9,d:'间谍黄昏为了执行任务组建了一个假家庭，妻子是杀手，女儿是超能力者，三人互相隐瞒身份开始了共同生活。',type:'anime',eps:25,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.bilibili.com%2Fbangumi%2Fplay%2Fss40648','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.bilibili.com%2Fbangumi%2Fplay%2Fss40648']},
+    {id:25,t:'铃芽之旅',y:2022,r:'日本',g:'动画',s:7.8,d:'少女铃芽遇到了为了关闭灾难之门而旅行的青年草太，她也跟着踏上了这段旅程。',type:'anime',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fsuzume.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fsuzume.html']},
+    {id:26,t:'灌篮高手',y:2022,r:'日本',g:'动画',s:8.8,d:'宫城良田、三井寿、流川枫、樱木花道和赤木刚宪，湘北篮球队终于站上了全国大赛的赛场。',type:'anime',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fslamdunk.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fslamdunk.html']},
+    {id:27,t:'海贼王',y:1999,r:'日本',g:'动画',s:9.5,d:'蒙奇D路飞为了成为海贼王，与伙伴们一起在大海上冒险，寻找传说中的One Piece。',type:'anime',eps:1000,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rr70j46x.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rr70j46x.html']},
+    {id:28,t:'斗罗大陆',y:2018,r:'中国大陆',g:'动画',s:8.5,d:'唐门外门弟子唐三穿越到斗罗大陆，在这里重新修炼唐门绝学，与伙伴们一起成为最强者。',type:'anime',eps:200,src:['https://jx.playerjy.com/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fdldl.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fv.qq.com%2Fx%2Fcover%2Fdldl.html']},
+    
+    {id:29,t:'奔跑吧',y:2023,r:'中国大陆',g:'综艺',s:7.5,d:'浙江卫视推出的户外竞技真人秀，李晨、杨颖、郑恺等明星带领观众一起快乐奔跑。',type:'variety',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrglz3ih.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrglz3ih.html']},
+    {id:30,t:'向往的生活',y:2023,r:'中国大陆',g:'综艺',s:7.8,d:'黄磊、何炅、彭昱畅、张子枫在蘑菇屋过着自给自足的慢生活，招待来自各地的朋友。',type:'variety',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrgm0429.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrgm0429.html']},
+    {id:31,t:'中国好声音',y:2023,r:'中国大陆',g:'综艺',s:6.5,d:'大型原创专业音乐节目，为中国乐坛的发展提供一批怀揣梦想、具有天赋才华的音乐人。',type:'variety',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrgh2kax.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrgh2kax.html']},
+    {id:32,t:'快乐再出发',y:2022,r:'中国大陆',g:'综艺',s:9.6,d:'0713再就业男团在海边的音乐之旅，真实、搞笑、感动，展现兄弟间的真挚情谊。',type:'variety',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.mgtv.com%2Fh%2F392568.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.mgtv.com%2Fh%2F392568.html']},
+    {id:33,t:'极限挑战',y:2023,r:'中国大陆',g:'综艺',s:7.2,d:'东方卫视推出的互动励志体验节目，极限男人帮一起挑战各种任务，传递正能量。',type:'variety',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrgqz00l.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrgqz00l.html']},
+    {id:34,t:'乘风破浪的姐姐',y:2023,r:'中国大陆',g:'综艺',s:7.0,d:'30位年龄30+的女艺人通过训练和考核，最终组成全新的女团，展现女性力量。',type:'variety',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.mgtv.com%2Fh%2F400876.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.mgtv.com%2Fh%2F400876.html']},
+    {id:35,t:'王牌对王牌',y:2023,r:'中国大陆',g:'综艺',s:7.3,d:'浙江卫视推出的原创室内竞技真人秀，沈腾、贾玲、华晨宇、关晓彤组成王牌家族。',type:'variety',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrgp4w4t.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrgp4w4t.html']},
+    {id:36,t:'相声有新人',y:2018,r:'中国大陆',g:'综艺',s:8.3,d:'郭德纲、张国立作为相声推荐人，选拔优秀的相声新人，传承传统相声文化。',type:'variety',src:['https://jx.playerjy.com/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrfdv6h5.html','https://jx.yemu.xyz/?url=https%3A%2F%2Fwww.iqiyi.com%2Fa_19rrfdv6h5.html']}
+];
+
+var VIP_PACKAGES = [
+    {id:1,name:'月度VIP',price:9.9,days:30},
+    {id:2,name:'双月VIP',price:18,days:60},
+    {id:3,name:'季度VIP',price:27,days:90}
+];
+
+// ==================== 状态管理 ====================
+var stack = ['home'], me = null, curDtl = null, curSrc = 0, curEp = 1, curPkg = 1;
+var catFilter = {type:'',y:'',r:'',g:''};
+var types = ['全部','电影','电视剧','动漫','综艺'];
+var years = ['全部'];
+for(var y=2024;y>=1990;y--)years.push(y.toString());
+var regions = ['全部','中国大陆','中国香港','中国台湾','美国','日本','韩国','英国','法国','印度','泰国','德国','西班牙','意大利','加拿大','澳大利亚','俄罗斯','巴西','其他'];
+var genres = ['全部','剧情','喜剧','动作','爱情','科幻','悬疑','惊悚','恐怖','动画','奇幻','武侠','古装','战争','犯罪','冒险','灾难','纪录片','综艺','脱口秀','音乐','运动'];
+
+// ==================== 工具函数 ====================
+function $(i){return document.getElementById(i)}
+function toast(m){var t=$('tst');t.textContent=m;t.style.display='block';setTimeout(function(){t.style.display='none'},1800)}
+function saveUser(){if(me)localStorage.setItem('momo_user',JSON.stringify(me));else localStorage.removeItem('momo_user')}
+function loadUser(){try{var s=localStorage.getItem('momo_user');if(s)me=JSON.parse(s)}catch(e){me=null}}
+
+// ==================== 数据查询 ====================
+function getHome(){
+    return {
+        hot: MOVIES.slice(0,8),
+        movie: MOVIES.filter(function(m){return m.type==='movie'}),
+        tv: MOVIES.filter(function(m){return m.type==='tv'}),
+        anime: MOVIES.filter(function(m){return m.type==='anime'}),
+        variety: MOVIES.filter(function(m){return m.type==='variety'})
+    };
+}
+function getList(filter){
+    var list = MOVIES.filter(function(m){
+        if(filter.type){
+            var typeMap={'电影':'movie','电视剧':'tv','动漫':'anime','综艺':'variety'};
+            if(m.type!==typeMap[filter.type])return false;
+        }
+        if(filter.y&&m.y!=parseInt(filter.y))return false;
+        if(filter.r&&m.r.indexOf(filter.r)===-1)return false;
+        if(filter.g&&m.g.indexOf(filter.g)===-1)return false;
+        return true;
+    });
+    return {list:list,total:list.length};
+}
+function getDetail(id){
+    for(var i=0;i<MOVIES.length;i++){if(MOVIES[i].id===id)return MOVIES[i]}
+    return null;
+}
+function getPlayUrl(movie,srcIdx,ep){
+    var sources = movie.src||[];
+    if(sources.length===0)return null;
+    return sources[srcIdx % sources.length];
+}
+
+// ==================== 页面切换 ====================
+function switchTab(t,e){
+    document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on')});
+    document.querySelectorAll('.ti').forEach(function(i){i.classList.remove('on')});
+    var pg=$('pg-'+t);if(pg)pg.classList.add('on');
+    if(e)e.classList.add('on');
+    else{var ti=document.querySelector('.ti[data-t="'+t+'"]');if(ti)ti.classList.add('on')}
+    $('hdr').style.display=(t==='home'||t==='lib'||t==='cat')?'flex':'none';
+    if(stack[stack.length-1]!==t){stack.push(t);try{history.pushState({tab:t},'',location.href)}catch(e){}}
+    if(t==='cat'&&!$('cat-list').children.length)loadCat();
+    if(t==='lib')loadLib();
+    if(t==='me')loadMe();
+}
+
+// ==================== 渲染函数 ====================
+function renderCard(m){
+    var colors=['#667eea','#764ba2','#f093fb','#4facfe','#43e97b','#fa709a','#fee140','#30cfd0'];
+    var color=colors[m.id%colors.length];
+    var short=m.t.length>4?m.t.substring(0,4):m.t;
+    return '<div class="pc" onclick="showDetail('+m.id+')"><div class="pc-i" style="background:linear-gradient(135deg,'+color+','+color+'dd);font-size:18px">'+short+'</div><div class="pc-t">'+m.t+'</div><div class="pc-s">★'+m.s+'</div></div>';
+}
+
+function loadHome(){
+    var d=getHome();
+    $('hot-list').innerHTML=d.hot.map(renderCard).join('');
+    $('movie-list').innerHTML=d.movie.map(renderCard).join('');
+    $('tv-list').innerHTML=d.tv.map(renderCard).join('');
+    $('anime-list').innerHTML=d.anime.map(renderCard).join('');
+    $('variety-list').innerHTML=d.variety.map(renderCard).join('');
+}
+
+function loadLib(){
+    var d=getList({type:'电影'});
+    $('lib-list').innerHTML=d.list.map(renderCard).join('');
+}
+
+function renderFilters(){
+    var h='';
+    types.forEach(function(t,i){h+='<div class="ft'+(i===0?' on':'')+'" onclick="setFilter(\'type\',this,\''+(i===0?'':t)+'\')">'+t+'</div>'});
+    $('type-flt').innerHTML=h;
+    h='';
+    years.forEach(function(y,i){h+='<div class="ft'+(i===0?' on':'')+'" onclick="setFilter(\'y\',this,\''+(i===0?'':y)+'\')">'+y+'</div>'});
+    $('year-flt').innerHTML=h;
+    h='';
+    regions.forEach(function(r,i){h+='<div class="ft'+(i===0?' on':'')+'" onclick="setFilter(\'r\',this,\''+(i===0?'':r)+'\')">'+r+'</div>'});
+    $('region-flt').innerHTML=h;
+    h='';
+    genres.forEach(function(g,i){h+='<div class="ft'+(i===0?' on':'')+'" onclick="setFilter(\'g\',this,\''+(i===0?'':g)+'\')">'+g+'</div>'});
+    $('genre-flt').innerHTML=h;
+}
+
+function setFilter(k,el,v){
+    catFilter[k]=v;
+    el.parentElement.querySelectorAll('.ft').forEach(function(f){f.classList.remove('on')});
+    el.classList.add('on');
+    loadCat();
+}
+
+function loadCat(){
+    var d=getList(catFilter);
+    $('cat-list').innerHTML=d.list.map(renderCard).join('');
+}
+
+// ==================== 详情页 ====================
+function showDetail(id){
+    var m=getDetail(id);
+    if(!m){toast('影片不存在');return}
+    curDtl=m;curEp=1;curSrc=0;
+    var eps=[];
+    var count=m.eps||1;
+    for(var i=1;i<=count;i++)eps.push('<button class="ep-b'+(i===1?' on':'')+'" onclick="selectEp('+i+',this)">'+i+'</button>');
+    var srcs=(m.src||[]).map(function(_,i){return '<button class="src-b'+(i===0?' on':'')+'" onclick="selectSrc('+i+',this)">线路'+(i+1)+'</button>'}).join('');
+    $('dtl-content').innerHTML=
+        '<div class="mv-t">'+m.t+'</div>'+
+        '<div class="mv-m"><span>'+m.y+'</span><span>'+m.r+'</span><span>'+m.g+'</span><span>★'+m.s+'</span></div>'+
+        '<div class="mv-d">'+m.d+'</div>'+
+        (count>1?'<div style="font-size:13px;color:#86868b;margin-bottom:8px">选集</div><div class="eps-g">'+eps.join('')+'</div>':'')+
+        '<div style="font-size:13px;color:#86868b;margin-bottom:8px">播放线路</div><div class="src-g">'+srcs+'</div>'+
+        '<button class="ply-b" onclick="startPlay()">▶ 立即播放</button>';
+    $('dtl-mask').classList.add('on');
+}
+function closeDetail(){$('dtl-mask').classList.remove('on')}
+function selectEp(n,el){curEp=n;document.querySelectorAll('.ep-b').forEach(function(b){b.classList.remove('on')});el.classList.add('on')}
+function selectSrc(n,el){curSrc=n;document.querySelectorAll('.src-b').forEach(function(b){b.classList.remove('on')});el.classList.add('on')}
+
+// ==================== 播放器 ====================
+function startPlay(){
+    if(!curDtl)return;
+    var url=getPlayUrl(curDtl,curSrc,curEp);
+    if(!url){toast('暂无播放源');return}
+    $('ply-title').textContent=curDtl.t;
+    $('ply-f').src=url;
+    $('plyr').classList.add('on');
+    closeDetail();
+}
+function closePly(){$('plyr').classList.remove('on');$('ply-f').src=''}
+
+// ==================== 登录/用户 ====================
+function wxLogin(){
+    var uid='u'+Date.now();
+    me={id:uid,name:'微信用户'+uid.substr(-4),avatar:'',is_vip:false,vip_expire:0};
+    saveUser();
+    showUser();
+    toast('登录成功！');
+}
+function loadMe(){
+    loadUser();
+    if(me)showUser();else showLogin();
+}
+function showLogin(){$('logged-out').classList.add('on');$('logged-in').classList.remove('on')}
+function showUser(){
+    $('logged-out').classList.remove('on');
+    $('logged-in').classList.add('on');
+    $('user-name').textContent=me.name;
+    if(me.is_vip&&me.vip_expire>Date.now()/1000){
+        var exp=new Date(me.vip_expire*1000);
+        $('vip-status').innerHTML='<span style="color:#f6d365;font-weight:600">👑 VIP会员 至'+exp.getFullYear()+'-'+(exp.getMonth()+1)+'-'+exp.getDate()+'</span>';
+        $('vip-btn').textContent='续费VIP';
+    }else{
+        $('vip-status').innerHTML='<span style="color:#86868b">普通用户</span>';
+        $('vip-btn').textContent='开通VIP';
+        me.is_vip=false;
+    }
+}
+
+// ==================== VIP支付 ====================
+function showVip(){
+    var h='';
+    VIP_PACKAGES.forEach(function(p,i){h+='<div class="pkg'+(i===0?' on':'')+'" onclick="selectPkg('+p.id+',this)"><div class="pkg-n">'+p.name+'</div><div class="pkg-p">¥'+p.price+'</div></div>'});
+    $('pkg-list').innerHTML=h;
+    curPkg=1;
+    $('vip-mask').classList.add('on');
+}
+function closeVip(){$('vip-mask').classList.remove('on')}
+function selectPkg(id,el){curPkg=id;document.querySelectorAll('.pkg').forEach(function(p){p.classList.remove('on')});el.classList.add('on')}
+function payVip(){
+    if(!me){toast('请先登录');return}
+    var pkg=null;
+    for(var i=0;i<VIP_PACKAGES.length;i++){if(VIP_PACKAGES[i].id===curPkg){pkg=VIP_PACKAGES[i];break}}
+    if(!pkg){toast('套餐错误');return}
+    $('pay-order').textContent='MOMO'+Date.now();
+    $('pay-amount').textContent='¥'+pkg.price;
+    $('vip-mask').classList.remove('on');
+    $('pay-mask').classList.add('on');
+    window._curPkg=pkg;
+}
+function closePay(){$('pay-mask').classList.remove('on')}
+function doPay(type){
+    if(!me||!window._curPkg){closePay();return}
+    var pkg=window._curPkg;
+    me.is_vip=true;
+    me.vip_expire=Math.floor(Date.now()/1000)+pkg.days*86400;
+    saveUser();
+    closePay();
+    showUser();
+    toast('🎉 开通成功！');
+}
+
+// ==================== 事件绑定 ====================
+$('dtl-mask').addEventListener('click',function(e){if(e.target===$('dtl-mask'))closeDetail()});
+$('vip-mask').addEventListener('click',function(e){if(e.target===$('vip-mask'))closeVip()});
+$('pay-mask').addEventListener('click',function(e){if(e.target===$('pay-mask'))closePay()});
+window.addEventListener('popstate',function(e){
+    stack.pop();
+    if(stack.length>0){var t=stack[stack.length-1];switchTab(t)}
+    else{try{history.pushState({tab:'home'},'',location.href)}catch(e){}stack=['home']}
+});
+
+// ==================== 初始化 ====================
+(function(){
+    loadUser();
+    renderFilters();
+    loadHome();
+})();
+</script>
 </body>
 </html>
